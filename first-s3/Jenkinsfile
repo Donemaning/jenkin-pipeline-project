@@ -1,0 +1,15 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Create S3 Bucket') {
+            steps {
+                script {
+                    def s3BucketName = 'my-first-jenkins-storage'
+                    awsS3CreateBucket(bucketName: s3BucketName)
+                    println "S3 Bucket '$s3BucketName' created successfully"
+                }
+            }
+        }
+    }
+}
