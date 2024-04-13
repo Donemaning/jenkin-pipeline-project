@@ -6,7 +6,8 @@ pipeline {
             steps {
                 script {
                     def ec2Params = [
-                        region: 'your-region',
+                        region: 'ca-central-1',
+                        credentials: 'terraform.admin',
                         imageId: 'ami-07413789aae50b0e0',
                         instanceType: 't2.micro',
                         keyName: 'jenkins-operations',
