@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    environment {
+        EC2_HOST = 'your-ec2-instance-ip'  // Replace with your EC2 instance's public IP
+        APP_DIR = '/home/ubuntu/my-app'   // Target directory on the EC2 instance
+    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                echo 'Cloning the repository...'
+                checkout scm
+            }
+        }
+        stage('Build Application') {
+            steps {
+                echo 'Building the application...'
+                sh 'echo No build needed for this example'
+            }
+        }
+        stage('Deploy to EC2') {
+            steps {
+                echo 'Deploying application to EC2 instance...'
+                sshagent(['ubuntu']) {
+                    sh """
+                    ssh -i /c/Users/NickDot/Downloads/UbuntuServer.pem -o StrictHostKeyChecking=no ubuntu@${EC2_HOST} "mkdir -p ${APP_DIR}"
+                    scp -i /c/Users/NickDot/Downloads/UbuntuServer.pem -o StrictHostKeyChecking=no -r * ubuntu@${EC2_HOST}:${APP_DIR}
+                    ssh -i /c/Users/NickDot/Downloads/UbuntuServer.pem ubuntu@${EC2_HOST} "cd ${APP_DIR} && ./deploy.sh"
+                    """
+                }
+            }
+        }
+        stage('Verify Deployment') {
+            steps {
+                echo 'Verifying the deployment...'
+                sshagent(['ubuntu']) {
+                    sh """
+                    ssh -i /c/Users/NickDot/Downloads/UbuntuServer.pem ubuntu@${EC2_HOST} "curl -I http://localhost:8080"
+                    """
+                }
+            }
+        }
+    }
+}
